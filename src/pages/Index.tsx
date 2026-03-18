@@ -13,6 +13,7 @@ const INITIAL_DISHES = [
   { id: 2, name: "Milanesa con Puré", description: "Milanesa de carne premium con puré de papas cremoso y un toque de manteca.", price: 380, category: "Clásicos" },
   { id: 3, name: "Canelones de Verdura", description: "Rellenos de espinaca fresca y ricota, bañados en salsa mixta.", price: 420, category: "Viandas" },
   { id: 4, name: "Tarta de Zapallitos", description: "Masa casera integral con relleno suave de zapallitos, cebolla y queso.", price: 320, category: "Saludable" },
+  { id: 5, name: "Chaja Casero", description: "Receta original uruguaya con merengue, crema y duraznos.", price: 180, category: "Postres" },
 ];
 
 const VIANDAS = [
@@ -28,34 +29,25 @@ const Index = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cart, setCart] = useState<{id: number, name: string, price: number, quantity: number}[]>([]);
   const [dishes, setDishes] = useState(INITIAL_DISHES);
+  const [activeCategory, setActiveCategory] = useState('Todos');
+
+  const categories = ['Todos', 'Viandas', 'Clásicos', 'Saludable', 'Postres'];
+
+  const filteredDishes = activeCategory === 'Todos' 
+    ? dishes 
+    : dishes.filter(d => d.category === activeCategory);
 
   const addToCart = (dish: any) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === dish.id);
-      if (existing) {
-        return prev.map(item => item.id === dish.id ? { ...item, quantity: item.quantity + 1 } : item);
-      }
+      if (existing) return prev.map(item => item.id === dish.id ? { ...item, quantity: item.quantity + 1 } : item);
       return [...prev, { id: dish.id, name: dish.name, price: dish.price, quantity: 1 }];
     });
-    toast.success(`${dish.name} agregado al pedido`, {
-      style: { background: '#8B3A1A', color: '#fff', borderRadius: '12px' },
-      iconTheme: { primary: '#fff', secondary: '#8B3A1A' }
-    });
+    toast.success(`${dish.name} agregado`, { style: { background: '#8B3A1A', color: '#fff' } });
   };
 
-  const removeFromCart = (id: number) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-  };
-
-  const updateQuantity = (id: number, delta: number) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQty = Math.max(1, item.quantity + delta);
-        return { ...item, quantity: newQty };
-      }
-      return item;
-    }));
-  };
+  const removeFromCart = (id: number) => setCart(prev => prev.filter(item => item.id !== id));
+  const updateQuantity = (id: number, delta: number) => setCart(prev => prev.map(item => item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item));
 
   const addDish = (newDish: any) => setDishes(prev => [...prev, { ...newDish, id: Date.now() }]);
   const updateDish = (updatedDish: any) => setDishes(prev => prev.map(d => d.id === updatedDish.id ? updatedDish : d));
@@ -77,22 +69,13 @@ const Index = () => {
             <p className="text-[#5C3317] text-lg mb-8 max-w-md mx-auto md:mx-0 leading-relaxed">Preparamos cada plato con ingredientes frescos, recetas tradicionales y el amor de siempre.</p>
             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
               <a href="#menu" className="bg-[#C06030] text-white px-8 py-4 rounded-full font-bold hover:bg-[#8B3A1A] transition-all shadow-lg shadow-[#C06030]/30">🍽 Ver el Menú</a>
-              <button className="bg-[#25D366] text-white px-8 py-4 rounded-full font-bold hover:bg-[#1da851] transition-all shadow-lg shadow-[#25D366]/30 flex items-center gap-2">
-                <Phone size={18} /> Pedir por WhatsApp
-              </button>
+              <button className="bg-[#25D366] text-white px-8 py-4 rounded-full font-bold hover:bg-[#1da851] transition-all shadow-lg shadow-[#25D366]/30 flex items-center gap-2"><Phone size={18} /> WhatsApp</button>
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="flex justify-center">
-            <div className="relative animate-float">
-              <svg className="w-full max-w-[340px] drop-shadow-2xl" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="100" cy="105" r="90" fill="#F0E8D8" stroke="#E8906A" strokeWidth="3"/>
-                <polygon points="100,25 175,78 158,78 158,175 42,175 42,78 25,78" fill="#E8906A" stroke="#C06030" strokeWidth="3" strokeLinejoin="round"/>
-                <polygon points="100,27 173,79 27,79" fill="#C06030"/>
-                <rect x="82" y="135" width="36" height="40" rx="18" fill="#8B3A1A"/>
-                <text x="100" y="198" textAnchor="middle" fontFamily="Georgia,serif" fontSize="15" fill="#8B3A1A" fontWeight="bold">Sabores de Hogar</text>
-                <text x="100" y="213" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="8" fill="#4A6741" letterSpacing="3" fontWeight="bold">COCINA ARTESANAL</text>
-              </svg>
-            </div>
+            <svg className="w-full max-w-[340px] drop-shadow-2xl animate-float" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="105" r="90" fill="#F0E8D8" stroke="#E8906A" strokeWidth="3"/><polygon points="100,25 175,78 158,78 158,175 42,175 42,78 25,78" fill="#E8906A" stroke="#C06030" strokeWidth="3" strokeLinejoin="round"/><polygon points="100,27 173,79 27,79" fill="#C06030"/><rect x="82" y="135" width="36" height="40" rx="18" fill="#8B3A1A"/><text x="100" y="198" textAnchor="middle" fontFamily="Georgia,serif" fontSize="15" fill="#8B3A1A" fontWeight="bold">Sabores de Hogar</text><text x="100" y="213" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="8" fill="#4A6741" letterSpacing="3" fontWeight="bold">COCINA ARTESANAL</text>
+            </svg>
           </motion.div>
         </div>
       </section>
@@ -100,14 +83,26 @@ const Index = () => {
       {/* Menu Section */}
       <section id="menu" className="py-24 px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <p className="text-[#C06030] font-bold text-xs tracking-[0.2em] uppercase mb-2">🍴 Lo que preparamos</p>
             <h2 className="font-serif text-4xl text-[#8B3A1A] mb-4">Nuestro Menú</h2>
-            <div className="w-20 h-1 bg-gradient-to-r from-[#C06030] to-[#4A6741] rounded-full mx-auto mb-6"></div>
-            <p className="text-[#5C3317] max-w-xl mx-auto">Platos caseros preparados a diario con ingredientes frescos de estación.</p>
+            <div className="w-20 h-1 bg-gradient-to-r from-[#C06030] to-[#4A6741] rounded-full mx-auto mb-8"></div>
+            
+            <div className="flex flex-wrap justify-center gap-3 mb-12">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-6 py-2 rounded-full text-sm font-bold transition-all border-2 ${activeCategory === cat ? 'bg-[#C06030] border-[#C06030] text-white' : 'border-[#E8906A]/30 text-[#8B3A1A] hover:border-[#C06030]'}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {dishes.map(dish => <MenuCard key={dish.id} dish={dish} onAddToCart={addToCart} />)}
+            {filteredDishes.map(dish => <MenuCard key={dish.id} dish={dish} onAddToCart={addToCart} />)}
           </div>
         </div>
       </section>
@@ -119,7 +114,6 @@ const Index = () => {
             <p className="text-[#C06030] font-bold text-xs tracking-[0.2em] uppercase mb-2">📅 Semanal</p>
             <h2 className="font-serif text-4xl text-[#8B3A1A] mb-4">Viandas de la Semana</h2>
             <div className="w-20 h-1 bg-gradient-to-r from-[#C06030] to-[#4A6741] rounded-full mx-auto mb-6"></div>
-            <p className="text-[#5C3317] max-w-xl mx-auto">Menú rotativo semanal. Podés encargar con anticipación y te lo preparamos fresquito.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {VIANDAS.map((v, idx) => <ViandaCard key={idx} {...v} />)}
@@ -152,11 +146,7 @@ const Index = () => {
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="hidden md:flex justify-center">
             <svg className="w-full max-w-sm opacity-80" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="130" cy="270" rx="80" ry="12" fill="rgba(255,255,255,.1)"/>
-              <rect x="60" y="150" width="140" height="40" rx="10" fill="#C06030"/>
-              <ellipse cx="130" cy="150" rx="70" ry="18" fill="#E8906A"/>
-              <path d="M175 60 L165 140" stroke="#FAF5ED" strokeWidth="5" strokeLinecap="round"/>
-              <ellipse cx="175" cy="55" rx="12" ry="16" fill="#FAF5ED"/>
+              <ellipse cx="130" cy="270" rx="80" ry="12" fill="rgba(255,255,255,.1)"/><rect x="60" y="150" width="140" height="40" rx="10" fill="#C06030"/><ellipse cx="130" cy="150" rx="70" ry="18" fill="#E8906A"/><path d="M175 60 L165 140" stroke="#FAF5ED" strokeWidth="5" strokeLinecap="round"/><ellipse cx="175" cy="55" rx="12" ry="16" fill="#FAF5ED"/>
             </svg>
           </motion.div>
         </div>
@@ -171,37 +161,17 @@ const Index = () => {
             <div className="w-20 h-1 bg-gradient-to-r from-[#C06030] to-[#4A6741] rounded-full mb-8"></div>
             <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-[#5C3317] uppercase tracking-wider">Tu nombre</label>
-                  <input className="w-full p-3 rounded-xl border border-[#E8906A]/20 bg-[#FAF5ED] outline-none focus:ring-2 focus:ring-[#C06030]" placeholder="¿Cómo te llamás?" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-[#5C3317] uppercase tracking-wider">Teléfono</label>
-                  <input className="w-full p-3 rounded-xl border border-[#E8906A]/20 bg-[#FAF5ED] outline-none focus:ring-2 focus:ring-[#C06030]" placeholder="+598 ..." />
-                </div>
+                <div className="space-y-2"><label className="text-xs font-bold text-[#5C3317] uppercase tracking-wider">Tu nombre</label><input className="w-full p-3 rounded-xl border border-[#E8906A]/20 bg-[#FAF5ED] outline-none focus:ring-2 focus:ring-[#C06030]" placeholder="¿Cómo te llamás?" /></div>
+                <div className="space-y-2"><label className="text-xs font-bold text-[#5C3317] uppercase tracking-wider">Teléfono</label><input className="w-full p-3 rounded-xl border border-[#E8906A]/20 bg-[#FAF5ED] outline-none focus:ring-2 focus:ring-[#C06030]" placeholder="+598 ..." /></div>
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#5C3317] uppercase tracking-wider">¿Qué querés encargar?</label>
-                <select className="w-full p-3 rounded-xl border border-[#E8906A]/20 bg-[#FAF5ED] outline-none focus:ring-2 focus:ring-[#C06030]">
-                  <option>Vianda semanal</option>
-                  <option>Plato especial</option>
-                  <option>Pedido para evento</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#5C3317] uppercase tracking-wider">Detalle</label>
-                <textarea className="w-full p-3 rounded-xl border border-[#E8906A]/20 bg-[#FAF5ED] outline-none focus:ring-2 focus:ring-[#C06030] h-32" placeholder="Contanos qué necesitás..." />
-              </div>
-              <button className="w-full bg-[#C06030] text-white py-4 rounded-xl font-bold hover:bg-[#8B3A1A] transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#C06030]/20">
-                <Send size={20} /> Enviar por WhatsApp
-              </button>
+              <div className="space-y-2"><label className="text-xs font-bold text-[#5C3317] uppercase tracking-wider">¿Qué querés encargar?</label><select className="w-full p-3 rounded-xl border border-[#E8906A]/20 bg-[#FAF5ED] outline-none focus:ring-2 focus:ring-[#C06030]"><option>Vianda semanal</option><option>Plato especial</option><option>Pedido para evento</option></select></div>
+              <div className="space-y-2"><label className="text-xs font-bold text-[#5C3317] uppercase tracking-wider">Detalle</label><textarea className="w-full p-3 rounded-xl border border-[#E8906A]/20 bg-[#FAF5ED] outline-none focus:ring-2 focus:ring-[#C06030] h-32" placeholder="Contanos qué necesitás..." /></div>
+              <button className="w-full bg-[#C06030] text-white py-4 rounded-xl font-bold hover:bg-[#8B3A1A] transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#C06030]/20"><Send size={20} /> Enviar por WhatsApp</button>
             </form>
           </div>
           <div className="space-y-8">
             <div className="bg-[#FAF5ED] p-8 rounded-3xl border-2 border-[#25D366] text-center">
-              <div className="bg-[#25D366] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-[#25D366]/30">
-                <Phone size={32} />
-              </div>
+              <div className="bg-[#25D366] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-[#25D366]/30"><Phone size={32} /></div>
               <h3 className="font-serif text-2xl text-[#8B3A1A] mb-4">¿Preferís por WhatsApp?</h3>
               <p className="text-[#5C3317] mb-6">Escribinos directamente y te respondemos a la brevedad. Es la forma más rápida.</p>
               <p className="text-2xl font-bold text-[#4A6741] mb-8">098 338 243</p>
@@ -210,15 +180,8 @@ const Index = () => {
             <div className="bg-white p-8 rounded-3xl shadow-xl border border-[#E8906A]/10">
               <h4 className="font-serif text-xl text-[#8B3A1A] mb-6 flex items-center gap-2"><Clock className="text-[#C06030]" /> Horarios de atención</h4>
               <div className="space-y-4">
-                {[
-                  { day: "Lunes – Viernes", time: "9:00 – 20:00" },
-                  { day: "Sábado", time: "9:00 – 14:00" },
-                  { day: "Domingo", time: "Cerrado", closed: true }
-                ].map((h, idx) => (
-                  <div key={idx} className="flex justify-between items-center border-b border-[#FAF5ED] pb-2">
-                    <span className="font-bold text-sm text-[#5C3317]">{h.day}</span>
-                    <span className={`text-sm ${h.closed ? 'text-red-500 italic' : 'text-[#8B3A1A]'}`}>{h.time}</span>
-                  </div>
+                {[{ day: "Lunes – Viernes", time: "9:00 – 20:00" }, { day: "Sábado", time: "9:00 – 14:00" }, { day: "Domingo", time: "Cerrado", closed: true }].map((h, idx) => (
+                  <div key={idx} className="flex justify-between items-center border-b border-[#FAF5ED] pb-2"><span className="font-bold text-sm text-[#5C3317]">{h.day}</span><span className={`text-sm ${h.closed ? 'text-red-500 italic' : 'text-[#8B3A1A]'}`}>{h.time}</span></div>
                 ))}
               </div>
             </div>
@@ -229,29 +192,11 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-[#3A2210] text-[#FAF5ED] py-16 px-8">
         <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-12">
-          <div>
-            <h3 className="font-serif text-2xl mb-6">Sabores de Hogar</h3>
-            <p className="opacity-70 leading-relaxed">Llevamos el sabor de la cocina tradicional uruguaya directamente a tu mesa.</p>
-          </div>
-          <div>
-            <h4 className="font-bold mb-6 uppercase tracking-wider text-sm text-[#E8906A]">Contacto</h4>
-            <ul className="space-y-4 opacity-70">
-              <li className="flex items-center gap-3"><MapPin size={18} /> Montevideo, Uruguay</li>
-              <li className="flex items-center gap-3"><Phone size={18} /> +598 98 338 243</li>
-              <li className="flex items-center gap-3"><Clock size={18} /> Lun - Sáb: 9:00 - 20:00</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-6 uppercase tracking-wider text-sm text-[#E8906A]">Síguenos</h4>
-            <div className="flex gap-4">
-              <a href="#" className="bg-white/10 p-3 rounded-full hover:bg-[#C06030] transition-colors"><Instagram size={20} /></a>
-              <a href="#" className="bg-white/10 p-3 rounded-full hover:bg-[#C06030] transition-colors"><Facebook size={20} /></a>
-            </div>
-          </div>
+          <div><h3 className="font-serif text-2xl mb-6">Sabores de Hogar</h3><p className="opacity-70 leading-relaxed">Llevamos el sabor de la cocina tradicional uruguaya directamente a tu mesa.</p></div>
+          <div><h4 className="font-bold mb-6 uppercase tracking-wider text-sm text-[#E8906A]">Contacto</h4><ul className="space-y-4 opacity-70"><li className="flex items-center gap-3"><MapPin size={18} /> Montevideo, Uruguay</li><li className="flex items-center gap-3"><Phone size={18} /> +598 98 338 243</li><li className="flex items-center gap-3"><Clock size={18} /> Lun - Sáb: 9:00 - 20:00</li></ul></div>
+          <div><h4 className="font-bold mb-6 uppercase tracking-wider text-sm text-[#E8906A]">Síguenos</h4><div className="flex gap-4"><a href="#" className="bg-white/10 p-3 rounded-full hover:bg-[#C06030] transition-colors"><Instagram size={20} /></a><a href="#" className="bg-white/10 p-3 rounded-full hover:bg-[#C06030] transition-colors"><Facebook size={20} /></a></div></div>
         </div>
-        <div className="max-w-6xl mx-auto mt-16 pt-8 border-t border-white/10 text-center opacity-50 text-sm">
-          <p>© 2025 Sabores de Hogar · Cocina Artesanal · Hecho con ❤ en Uruguay</p>
-        </div>
+        <div className="max-w-6xl mx-auto mt-16 pt-8 border-t border-white/10 text-center opacity-50 text-sm"><p>© 2025 Sabores de Hogar · Cocina Artesanal · Hecho con ❤ en Uruguay</p></div>
       </footer>
 
       {/* Cart FAB */}
